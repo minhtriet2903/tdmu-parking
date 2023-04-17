@@ -111,6 +111,7 @@ const Nav = () => {
                 if (router.pathname.split("/")[1] == item.url) {
                   return (
                     <div
+                      key={index}
                       className="border-gray-100 flex text-[18px] font-semibold "
                       onClick={() => {
                         if (!loginData) {
@@ -131,6 +132,7 @@ const Nav = () => {
                 } else {
                   return (
                     <div
+                      key={index}
                       className="border-gray-100 flex text-[16px] hover:font-semibold mx-2"
                       onClick={() => {
                         if (!loginData) {

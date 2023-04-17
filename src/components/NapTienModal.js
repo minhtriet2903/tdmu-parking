@@ -61,7 +61,7 @@ const NapTienModal = ({
               <div
                 className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
             cursor-pointer font-semibold m-2 bg-slate-300"
-                id={index}
+                key={index}
               >
                 {item.label}
               </div>
@@ -69,6 +69,7 @@ const NapTienModal = ({
           } else {
             return (
               <div
+                key={index}
                 className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
             cursor-pointer font-semibold m-2"
                 onClick={() => handleSelectMoney(item.value)}

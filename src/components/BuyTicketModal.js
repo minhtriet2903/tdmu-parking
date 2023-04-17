@@ -64,6 +64,7 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
         {muaTheoVe.map((item, index) => {
           return (
             <div
+              key={index}
               className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
           cursor-pointer font-semibold m-2"
             >
@@ -84,7 +85,7 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
             <div
               className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
           cursor-pointer font-semibold m-2"
-              id={index}
+              key={index}
             >
               {item.label} --- {item.value}
             </div>

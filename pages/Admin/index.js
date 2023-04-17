@@ -14,6 +14,7 @@ import AdminHome from "./AdminHome";
 import UserManagerTable from "../../src/components/UserManagerTable";
 import CardManager from "../../src/components/CardManager";
 import Settings from "../../src/components/Settings";
+import { useRouter } from "next/router";
 
 const { Search } = Input;
 
@@ -24,6 +25,8 @@ export default function Admin() {
   const [userDetail, setUserDetail] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loginData, setLoginData] = useState();
+
+  const router = useRouter();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -125,9 +128,14 @@ export default function Admin() {
                   />
                 </div>
                 <div>
-                  <a href="/User" className="text-black">
+                  <div
+                    onClick={() => {
+                      router.push("/User");
+                    }}
+                    className="text-black"
+                  >
                     {loginData.name}
-                  </a>
+                  </div>
                 </div>
                 <div onClick={handleSignOut} className="cursor-pointer">
                   <FontAwesomeIcon
