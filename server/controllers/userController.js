@@ -28,7 +28,7 @@ const getAll = (req, res) => {
 const getUserByEmail = (req, res) => {
   const { email } = req.query;
   if (email) {
-    User.find({ email: { $regex: email } })
+    User.find({ Email: { $regex: email } })
       .then((users) => {
         return res.status(200).json(users);
       })
