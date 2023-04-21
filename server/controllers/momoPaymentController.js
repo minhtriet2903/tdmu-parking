@@ -1,6 +1,7 @@
 const MomoPayment = require("../models/momoPaymentModel");
 const crypto = require("crypto");
 const https = require("https");
+require("dotenv").config();
 
 exports.getAll = (req, res) => {
   MomoPayment.find()
@@ -19,6 +20,7 @@ exports.getAll = (req, res) => {
 
 // exports.create = async (req, res) => {
 exports.create = async (req, res) => {
+  const { inputAmount, userId } = req.body;
   // const body = new MomoPayment({
   //   Amount: req.body.amount,
   // });
@@ -29,10 +31,10 @@ exports.create = async (req, res) => {
   var requestId = partnerCode + new Date().getTime();
   var orderId = requestId;
   var orderInfo = "pay with MoMo";
-  var redirectUrl = "http://localhost:3000/";
-  var ipnUrl = "http://localhost:3000/";
+  var redirectUrl = process.env.LOCAL_DOMAIN;
+  var ipnUrl = process.env.LOCAL_DOMAIN;
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
-  var amount = "5000";
+  var amount = inputAmount;
   var requestType = "captureWallet";
   var extraData = ""; //pass empty value if your merchant does not have stores
 
@@ -148,11 +150,11 @@ exports.confirmOrder = async (req, res) => {
   // const body = new MomoPayment({
   //   Amount: req.body.amount,
   // });
+  var { requestId } = req.body;
 
   var partnerCode = "MOMO";
   var accessKey = "F8BBA842ECF85";
   var secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-  var requestId = "MOMO1678296428097";
   var orderId = requestId;
 
   //before sign HMAC SHA256 with format

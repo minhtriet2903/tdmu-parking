@@ -5,6 +5,7 @@ import {
   faMagnifyingGlass,
   faUser,
   faBell,
+  faSignOut,
 } from "@fortawesome/free-solid-svg-icons";
 import { Input, Space, Table } from "antd";
 import axios from "axios";
@@ -21,6 +22,7 @@ const { Search } = Input;
 export default function Admin() {
   const [indexMenu, setIndexMenu] = useState("transLog");
   const [transactionData, setTransactionData] = useState([]);
+  const [cardData, setCardData] = useState([]);
   const [userData, setUserData] = useState([]);
   const [userDetail, setUserDetail] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +40,7 @@ export default function Admin() {
   const onSearch = (value) => console.log(value);
 
   const handleSignOut = () => {
+    router.push("/");
     localStorage.removeItem("loginData");
     setLoginData(null);
   };
@@ -52,7 +55,7 @@ export default function Admin() {
 
     if (indexMenu == "users") {
       axios
-        .get("http://localhost:5035/users", {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users", {})
         .then(function (response) {
           console.log(response);
           setUserData(response.data.User);
@@ -63,10 +66,21 @@ export default function Admin() {
         });
     } else if (indexMenu == "transLog") {
       axios
-        .get("http://localhost:5035/transaction", {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/transaction", {})
         .then(function (response) {
           console.log(response);
           setTransactionData(response.data.Transaction);
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
+    } else if (indexMenu == "cards") {
+      axios
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/card", {})
+        .then(function (response) {
+          console.log(response);
+          setCardData(response.data.allCard);
         })
         .catch(function (error) {
           // handle error
@@ -78,7 +92,7 @@ export default function Admin() {
   useEffect(() => {
     if (indexMenu == "users") {
       axios
-        .get("http://localhost:5035/users", {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users", {})
         .then(function (response) {
           console.log(response);
           setUserData(response.data.User);
@@ -89,10 +103,21 @@ export default function Admin() {
         });
     } else if (indexMenu == "transLog") {
       axios
-        .get("http://localhost:5035/transaction", {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/transaction", {})
         .then(function (response) {
           console.log(response);
           setTransactionData(response.data.Transaction);
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
+    } else if (indexMenu == "cards") {
+      axios
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/card", {})
+        .then(function (response) {
+          console.log(response);
+          setCardData(response.data.allCard);
         })
         .catch(function (error) {
           // handle error
@@ -118,55 +143,38 @@ export default function Admin() {
               className="text-[#3380FF]"
             />
           </div>
-          <div className="flex w-1/3 justify-center">
-            {loginData ? (
-              <div className="flex">
-                <div className="">
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="w-[20px] h-[20px] mx-2"
-                  />
-                </div>
-                <div>
-                  <div
-                    onClick={() => {
-                      router.push("/User");
-                    }}
-                    className="text-black"
-                  >
-                    {loginData.name}
-                  </div>
-                </div>
-                <div onClick={handleSignOut} className="cursor-pointer">
-                  <FontAwesomeIcon
-                    icon={faSignOut}
-                    className="w-[20px] h-[20px] mx-2"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center mr-10">
-                <FontAwesomeIcon
-                  icon={faBell}
-                  className="text-[#3380FF] mr-10 cursor-pointer"
-                />
+          <div className="flex items-center mr-5">
+            <div className="flex">
+              <div className="">
                 <FontAwesomeIcon
                   icon={faUser}
-                  className="text-[#3380FF] cursor-pointer"
+                  className="w-[20px] h-[20px] mx-2"
                 />
+              </div>
+              <div>
                 <div
-                  className="text-[#3380FF] mx-10 cursor-pointer font-semibold"
-                  onClick={showModal}
+                  // onClick={() => {
+                  //   router.push("/User");
+                  // }}
+                  className="text-black"
                 >
-                  Đăng nhập
+                  {loginData?.Name}
                 </div>
               </div>
-            )}
+              <div onClick={handleSignOut} className="cursor-pointer">
+                <FontAwesomeIcon
+                  icon={faSignOut}
+                  className="w-[20px] h-[20px] mx-2"
+                />
+              </div>
+            </div>
           </div>
         </div>
-        {indexMenu == "transLog" && <TransactionLog></TransactionLog>}
+        {indexMenu == "transLog" && (
+          <TransactionLog data={transactionData}></TransactionLog>
+        )}
         {indexMenu == "home" && <AdminHome></AdminHome>}
-        {indexMenu == "cards" && <CardManager></CardManager>}
+        {indexMenu == "cards" && <CardManager data={cardData}></CardManager>}
         {indexMenu == "settings" && <Settings></Settings>}
         {indexMenu == "users" && (
           <UserManagerTable

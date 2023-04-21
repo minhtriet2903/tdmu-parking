@@ -28,7 +28,7 @@ const getAll = (req, res) => {
 const getUserByEmail = (req, res) => {
   const { email } = req.query;
   if (email) {
-    User.find({ Email: { $regex: email } })
+    User.find({ Email: email })
       .then((users) => {
         return res.status(200).json(users);
       })
@@ -40,6 +40,32 @@ const getUserByEmail = (req, res) => {
         });
       });
   }
+};
+
+const createUser = (req, res) => {
+  const { email, name } = req.body;
+  const users = new User({
+    Email: email,
+    Name: name,
+  });
+
+  return users
+    .save()
+    .then((newUser) => {
+      return res.status(201).json({
+        success: true,
+        message: "New user created successfully",
+        user: newUser,
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({
+        success: false,
+        message: "Server error. Please try again.",
+        error: error.message,
+      });
+    });
 };
 
 const createUserByCardId = (req, res) => {
@@ -72,17 +98,37 @@ const createUserByCardId = (req, res) => {
 const updateUserAmountById = (req, res) => {
   const id = req.body.id;
   const chargeAmount = req.body.chargeAmount;
-  User.findByIdAndUpdate(id, { CurrentAmount: parseInt(chargeAmount) })
-    .then((card) => {
-      res.status(200).json(card);
+  const newTotalAmount = req.body.newTotalAmount;
+  if (newTotalAmount) {
+    User.findByIdAndUpdate(id, {
+      CurrentAmount: parseInt(chargeAmount),
+      TotalAmount: parseInt(newTotalAmount),
     })
-    .catch((err) => {
-      res.status(500).json({
-        success: false,
-        message: "Update failed",
-        error: err.message,
+      .then((card) => {
+        res.status(200).json(card);
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: false,
+          message: "Update failed",
+          error: err.message,
+        });
       });
-    });
+  } else {
+    User.findByIdAndUpdate(id, {
+      CurrentAmount: parseInt(chargeAmount),
+    })
+      .then((card) => {
+        res.status(200).json(card);
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: false,
+          message: "Update failed",
+          error: err.message,
+        });
+      });
+  }
 };
 
 const getUserById = (req, res) => {
@@ -202,4 +248,5 @@ module.exports = {
   getUserByCardId,
   createUserByCardId,
   getAll,
+  createUser,
 };

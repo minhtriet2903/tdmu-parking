@@ -106,53 +106,47 @@ const Nav = () => {
                 Student Smart Parking
               </div>
             </div>
-            <div className="flex justify-start items-center ml-10">
-              {navBarItem.map((item, index) => {
-                if (router.pathname.split("/")[1] == item.url) {
-                  return (
-                    <div
-                      key={index}
-                      className="border-gray-100 flex text-[18px] font-semibold "
-                      onClick={() => {
-                        if (!loginData) {
-                          showModal();
-                        } else {
-                          router.push("/" + item.url);
-                        }
-                      }}
-                    >
+            {loginData && (
+              <div className="flex justify-start items-center ml-10">
+                {navBarItem.map((item, index) => {
+                  if (router.pathname.split("/")[1] == item.url) {
+                    return (
                       <div
-                        className="block text-blue-700 rounded md:bg-transparent
+                        key={index}
+                        className="border-gray-100 flex text-[18px] font-semibold "
+                        onClick={() => {
+                          router.push("/" + item.url);
+                        }}
+                      >
+                        <div
+                          className="block text-blue-700 rounded md:bg-transparent
                     md:p-0 dark:text-white mx-5 cursor-pointer"
-                      >
-                        {item.title}
+                        >
+                          {item.title}
+                        </div>
                       </div>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div
-                      key={index}
-                      className="border-gray-100 flex text-[16px] hover:font-semibold mx-2"
-                      onClick={() => {
-                        if (!loginData) {
-                          showModal();
-                        } else {
-                          router.push("/" + item.url);
-                        }
-                      }}
-                    >
+                    );
+                  } else {
+                    return (
                       <div
-                        className="block rounded md:bg-transparent mx-5
-                    md:p-0 dark:text-white text-gray-700 cursor-pointer"
+                        key={index}
+                        className="border-gray-100 flex text-[16px] hover:font-semibold mx-2"
+                        onClick={() => {
+                          router.push("/" + item.url);
+                        }}
                       >
-                        {item.title}
+                        <div
+                          className="block rounded md:bg-transparent mx-5
+                    md:p-0 dark:text-white text-gray-700 cursor-pointer"
+                        >
+                          {item.title}
+                        </div>
                       </div>
-                    </div>
-                  );
-                }
-              })}
-            </div>
+                    );
+                  }
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-center">
@@ -184,7 +178,7 @@ const Nav = () => {
                       }}
                       className="text-black w-auto"
                     >
-                      {loginData.name}
+                      {loginData.Name}
                     </div>
                     <div onClick={handleSignOut} className="cursor-pointer">
                       <FontAwesomeIcon

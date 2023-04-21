@@ -55,7 +55,7 @@ export default function Home({ data }) {
   useEffect(() => {
     if (cardId != "" && cardId != null) {
       axios
-        .get("http://localhost:5035/card/" + cardId, {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/card/" + cardId, {})
         .then(function (response) {
           console.log(response.status);
           if (response.data) {
@@ -67,10 +67,14 @@ export default function Home({ data }) {
                 });
               } else {
                 axios
-                  .put("http://localhost:5035/cardBikeTicket", {
-                    id: cardId,
-                    bikeTicket: response.data.BikeTicket - 1,
-                  })
+                  .put(
+                    process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
+                      "/cardBikeTicket",
+                    {
+                      id: cardId,
+                      bikeTicket: response.data.BikeTicket - 1,
+                    }
+                  )
                   .then(function (response) {
                     console.log(response);
                     messageApi.open({
@@ -106,22 +110,8 @@ export default function Home({ data }) {
     }
   }, [cardId]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <>
-      {/* {contextHolder}
-      <AddUserModal
-        showModal={showModal}
-        isModalOpen={isModalOpen}
-        handleCancel={handleCancel}
-      ></AddUserModal> */}
       <div className="flex justify-center flex-col items-center">
         <div className="flex items-center mt-10 ">
           <div className="flex ">

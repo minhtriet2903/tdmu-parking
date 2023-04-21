@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Input, Modal, message, Radio } from "antd";
+import { Input, Modal, message, Radio, notification } from "antd";
 import { faStarOfLife } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,7 +7,7 @@ import { db } from "../firebase";
 import { set, ref, onValue, remove, update } from "firebase/database";
 import { useRouter } from "next/router";
 
-const NapTienModal = ({
+const UserNapTienModal = ({
   isModalOpen,
   showModal,
   handleCancel,
@@ -19,7 +19,6 @@ const NapTienModal = ({
   const router = useRouter();
 
   const payTypeOptions = [
-    { label: "Tiền mặt", value: "cash" },
     { label: "MOMO", value: "momo" },
     { label: "BIDV", value: "bidv" },
   ];
@@ -85,59 +84,16 @@ const NapTienModal = ({
   };
 
   const handleNapTien = () => {
+    const loginUser = localStorage.getItem("loginData")
+      ? JSON.parse(localStorage.getItem("loginData"))
+      : null;
+
     if (selectedPayType == "cash") {
-      axios
-        .get(
-          process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users/" + idUserNapTien,
-          {}
-        )
-        .then(function (response) {
-          axios
-            .put(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/userAmount", {
-              id: idUserNapTien,
-              chargeAmount: response.data.CurrentAmount + selectMoney,
-              newTotalAmount: response.data.TotalAmount + selectMoney,
-            })
-            .then(function (re) {
-              // console.log(re.data);
-              notification.open({
-                message: "Thành công!!",
-                duration: 2,
-              });
-            })
-            .catch(function (error) {
-              // handle error
-              console.log(error);
-            });
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        });
-      axios
-        .post(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/transaction", {
-          amount: selectMoney,
-          method: "CASH",
-          transType: "NapTien",
-          userId: idUserNapTien,
-        })
-        .then(function (re) {
-          console.log(re);
-          if (re.status == 201) {
-            notification.open({
-              message: "Thành công!!",
-              duration: 2,
-            });
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
     } else if (selectedPayType == "momo") {
       axios
         .post(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/momoPayment", {
           inputAmount: selectMoney,
-          userId: idUserNapTien,
+          userId: loginUser._id,
         })
         .then(function (response) {
           console.log(response);
@@ -148,7 +104,7 @@ const NapTienModal = ({
               .get(
                 process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
                   "/users/" +
-                  idUserNapTien,
+                  loginUser._id,
                 {}
               )
               .then(function (response) {
@@ -156,7 +112,7 @@ const NapTienModal = ({
                   .put(
                     process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/userAmount",
                     {
-                      id: idUserNapTien,
+                      id: loginUser._id,
                       chargeAmount: response.data.CurrentAmount + selectMoney,
                       newTotalAmount: response.data.TotalAmount + selectMoney,
                     }
@@ -183,7 +139,7 @@ const NapTienModal = ({
                 amount: selectMoney,
                 method: "MOMO",
                 transType: "NapTien",
-                userId: idUserNapTien,
+                userId: loginUser._id,
                 paymentId: response.data.data.requestId,
               })
               .then(function (re) {
@@ -242,4 +198,4 @@ const NapTienModal = ({
     </>
   );
 };
-export default NapTienModal;
+export default UserNapTienModal;

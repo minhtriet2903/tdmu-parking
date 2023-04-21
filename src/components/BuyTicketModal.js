@@ -6,14 +6,41 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { db } from "../firebase";
 import { set, ref, onValue, remove, update } from "firebase/database";
 
-const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
-  const [cardId, setCardId] = useState("");
+const BuyTicketModal = ({
+  isModalOpen,
+  showModal,
+  handleCancel,
+  inputCardId,
+}) => {
+  const [cardId, setCardId] = useState(inputCardId);
   const [userId, setUserId] = useState("");
   const [reset, setReset] = useState(false);
   const [chargeAmount, setChargeAmount] = useState("");
   const [selectedPayType, setSelectedPayType] = useState("");
+  const [userInfor, setUserInfor] = useState();
+  const [selectCharge, setSelectCharge] = useState();
 
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    if (isModalOpen && inputCardId) {
+      axios
+        .get(
+          process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
+            "/users/" +
+            inputCardId.userId,
+          {}
+        )
+        .then(function (response) {
+          // console.log(response.data);
+          setUserInfor(response.data);
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
+    }
+  }, [isModalOpen]);
 
   const payTypeOptions = [
     { label: "Mua lượt gửi xe", value: "ticket" },
@@ -62,15 +89,33 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
     return (
       <div>
         {muaTheoVe.map((item, index) => {
-          return (
-            <div
-              key={index}
-              className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
+          if (selectCharge?.value == item.value) {
+            return (
+              <div
+                key={index}
+                className="p-2 bg-sky-100 rounded border-sky-400 border 
           cursor-pointer font-semibold m-2"
-            >
-              {item.label} --- {item.value}
-            </div>
-          );
+                onClick={() => {
+                  setSelectCharge(item);
+                }}
+              >
+                {item.label} --- {item.value}
+              </div>
+            );
+          } else {
+            return (
+              <div
+                key={index}
+                className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
+          cursor-pointer font-semibold m-2"
+                onClick={() => {
+                  setSelectCharge(item);
+                }}
+              >
+                {item.label} --- {item.value}
+              </div>
+            );
+          }
         })}
         <div></div>
       </div>
@@ -81,15 +126,33 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
     return (
       <div>
         {muaTheoGoi.map((item, index) => {
-          return (
-            <div
-              className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
-          cursor-pointer font-semibold m-2"
-              key={index}
-            >
-              {item.label} --- {item.value}
-            </div>
-          );
+          if (selectCharge?.value == item.value) {
+            return (
+              <div
+                className="p-2 bg-sky-100 rounded border-sky-400 border 
+            cursor-pointer font-semibold m-2"
+                key={index}
+                onClick={() => {
+                  setSelectCharge(item);
+                }}
+              >
+                {item.label} --- {item.value}
+              </div>
+            );
+          } else {
+            return (
+              <div
+                className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
+            cursor-pointer font-semibold m-2"
+                key={index}
+                onClick={() => {
+                  setSelectCharge(item);
+                }}
+              >
+                {item.label} --- {item.value}
+              </div>
+            );
+          }
         })}
         <div></div>
       </div>
@@ -102,41 +165,90 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
   };
 
   const hanldeBuyTicket = () => {
-    axios
-      .get("http://localhost:5035/users/" + userId, {})
-      .then(function (response) {
-        if (response.status == 200) {
-          let isAvailableCharge =
-            response.CurrentAmount - parseInt(chargeAmount);
-          if (isAvailableCharge && isAvailableCharge < 0) {
+    let isAvailableCharge =
+      userInfor.CurrentAmount - parseInt(selectCharge.value);
+    if (isAvailableCharge && isAvailableCharge < 0) {
+      messageApi.open({
+        type: "error",
+        content: "This account has not enough money to charge",
+      });
+    } else {
+      if (selectCharge.label.includes("Gói")) {
+        var date = new Date();
+        axios
+          .put(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardBikeTicket", {
+            id: inputCardId._id,
+            phieuXeTheoGoi: selectCharge.label + "---" + selectCharge.value,
+            hanSuDung: date.getDate() + 7,
+          })
+          .then(function (response) {
+            console.log(response);
+            messageApi.open({
+              type: "success",
+              content: "Success",
+            });
+            oncancel();
+          })
+          .catch(function (error1) {
+            console.log(error1);
             messageApi.open({
               type: "error",
-              content: "This account has not enough money to charge",
+              content: "ID not found",
             });
-          } else {
-            axios
-              .put("http://localhost:5035/users", {
-                id: userId,
-                chargeAmount: isAvailableCharge,
-              })
-              .then(function (response) {
-                console.log(response);
-                messageApi.open({
-                  type: "success",
-                  content: "Success",
+          });
+      } else {
+        axios
+          .get(
+            process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
+              "/card/" +
+              inputCardId._id,
+            {}
+          )
+          .then(function (response) {
+            console.log(response.status);
+            if (response.status == 200) {
+              axios
+                .put(
+                  process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardBikeTicket",
+                  {
+                    id: inputCardId._id,
+                    bikeTicket:
+                      response.data.BikeTicket +
+                      selectCharge.label.split(" ")[0],
+                  }
+                )
+                .then(function (response) {
+                  console.log(response);
+                  messageApi.open({
+                    type: "success",
+                    content: "Success",
+                  });
+                  oncancel();
+                })
+                .catch(function (error1) {
+                  console.log(error1);
+                  messageApi.open({
+                    type: "error",
+                    content: "ID not found",
+                  });
                 });
-                oncancel();
-              })
-              .catch(function (error) {
-                console.log(error);
+            } else {
+              messageApi.open({
+                type: "error",
+                content: "ID not found",
               });
-          }
-        }
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
+            }
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+            messageApi.open({
+              type: "error",
+              content: "ID not found",
+            });
+          });
+      }
+    }
   };
 
   //read
@@ -166,6 +278,35 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
         footer={null}
         className="flex justify-center"
       >
+        <div className="w-[400px] items-center flex rounded-md cursor-pointer my-2">
+          <div className="flex items-center">
+            <div className="flex items-center cursor-pointer">
+              <FontAwesomeIcon
+                icon={faStarOfLife}
+                className="w-[8px] h-[8px] mr-2 text-red-600"
+              />
+            </div>
+            Mã thẻ
+          </div>
+          <div className="flex ml-5">{inputCardId?._id}</div>
+        </div>
+        <div className="w-[400px] items-center flex rounded-md cursor-pointer my-2">
+          <div className="flex items-center">
+            <div className="flex items-center cursor-pointer">
+              <FontAwesomeIcon
+                icon={faStarOfLife}
+                className="w-[8px] h-[8px] mr-2 text-red-600"
+              />
+            </div>
+            Mã thẻ cứng
+          </div>
+          <div className="flex ml-5">{inputCardId?.HardCardId}</div>
+        </div>
+        <div className="w-[400px] items-center flex rounded-md cursor-pointer my-2">
+          <div className="flex items-center">Họ và tên</div>
+          <div className="flex ml-5">{inputCardId?.userId}</div>
+        </div>
+
         <div
           className="w-[400px] items-center flex h-[50px] rounded-md
         justify-center cursor-pointer"
@@ -177,28 +318,6 @@ const BuyTicketModal = ({ isModalOpen, showModal, handleCancel }) => {
             optionType="button"
             buttonStyle="solid"
           />
-        </div>
-        <div
-          className="w-[400px] items-center flex h-[50px] rounded-md
-        justify-center cursor-pointer"
-        >
-          <div className="w-2/5 flex items-center">
-            Mã thẻ
-            <div className="flex items-center cursor-pointer">
-              <FontAwesomeIcon
-                icon={faStarOfLife}
-                className="w-[8px] h-[8px] ml-1 text-red-600"
-              />
-            </div>
-          </div>
-          <div className="w-3/5 flex">
-            <Input
-              className="!mr-2"
-              placeholder="card id"
-              onChange={(e) => setCardId(e.target.value)}
-              value={cardId}
-            />
-          </div>
         </div>
 
         {selectedPayType == "ticket" && renderMuaTheoVe()}

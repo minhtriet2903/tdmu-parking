@@ -3,25 +3,47 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { Input, Space, Table, DatePicker, Select, message } from "antd";
 import axios from "axios";
-import AddUserModal from "./AddUserModal";
-import NapTienModal from "./NapTienModal";
+import BuyTicketModal from "./BuyTicketModal";
+import AddCardModal from "./AddCardModal";
 
-export default function CardManager({ userData, setUserDetail }) {
-  const [messageApi, contextHolder] = message.useMessage();
+export default function CardManager({ data }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isVisibleNapTienModal, setIsVisibleNapTienModal] = useState(false);
-  const [idUserNapTien, setIdUserNapTien] = useState(false);
+
+  const [isBuyTicketModalOpen, setIsBuyTicketModalOpen] = useState(false);
+  const [cardId, setCardId] = useState();
+
+  const showBuyTicketModal = () => {
+    setIsBuyTicketModalOpen(true);
+  };
+  const handleBuyTicketCancel = () => {
+    setIsBuyTicketModalOpen(false);
+  };
 
   const columns = [
+    {
+      title: "Mã thẻ cứng",
+      dataIndex: "HardCardId",
+      key: "HardCardId",
+    },
     {
       title: "Người dùng hiện tại",
       dataIndex: "userId",
       key: "userId",
     },
     {
+      title: "Phiếu xe đơn",
+      dataIndex: "BikeTicket",
+      key: "BikeTicket",
+    },
+    {
+      title: "Phiếu xe theo gói",
+      dataIndex: "PhieuXeTheoGoi",
+      key: "PhieuXeTheoGoi",
+    },
+    {
       title: "Trạng thái",
-      dataIndex: "isActive",
-      key: "isActive",
+      dataIndex: "IsActive",
+      key: "IsActive",
     },
     {
       title: "Action",
@@ -32,21 +54,11 @@ export default function CardManager({ userData, setUserDetail }) {
             className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300"
             onClick={(e) => {
               e.stopPropagation();
-              setIdUserNapTien(item._id);
-              showNapTienModal();
+              setCardId(item);
+              showBuyTicketModal();
             }}
           >
-            Nạp tiền
-          </div>
-          <div
-            className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIdUserNapTien(item._id);
-              showModal();
-            }}
-          >
-            Mua thẻ xe
+            Mua phiếu xe
           </div>
         </Space>
       ),
@@ -59,33 +71,34 @@ export default function CardManager({ userData, setUserDetail }) {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const showNapTienModal = () => {
-    setIsVisibleNapTienModal(true);
-  };
-  const handleCancelNapTien = () => {
-    setIsVisibleNapTienModal(false);
-  };
+
   return (
     <div
       className="flex bg-[#e6f4ff] h-[550px] m-5 rounded-xl items-start
          pt-3 flex-col"
     >
-      {contextHolder}
-      <AddUserModal
+      <div
+        className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300 ml-3"
+        onClick={(e) => {
+          showModal();
+        }}
+      >
+        Thêm thẻ
+      </div>
+      <AddCardModal
         showModal={showModal}
         isModalOpen={isModalOpen}
         handleCancel={handleCancel}
-        idUserNapTien={idUserNapTien}
-      ></AddUserModal>
-      <NapTienModal
-        showModal={showNapTienModal}
-        isModalOpen={isVisibleNapTienModal}
-        handleCancel={handleCancelNapTien}
-        idUserNapTien={idUserNapTien}
-      ></NapTienModal>
+      ></AddCardModal>
+      <BuyTicketModal
+        showModal={showBuyTicketModal}
+        isModalOpen={isBuyTicketModalOpen}
+        handleCancel={handleBuyTicketCancel}
+        inputCardId={cardId}
+      ></BuyTicketModal>
       <Table
         columns={columns}
-        dataSource={userData}
+        dataSource={data}
         size={"large"}
         className="p-3"
         scroll={{
@@ -95,7 +108,6 @@ export default function CardManager({ userData, setUserDetail }) {
           return {
             onClick: (event) => {
               // console.log(record);
-              setUserDetail(record);
             }, // click row
           };
         }}

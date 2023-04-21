@@ -27,9 +27,17 @@ const cardSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  HardCardId: {
+    type: String,
+    default: "",
+  },
   IsActive: {
     type: Boolean,
     default: false,
+  },
+  HanSuDungGoiGuiXe: {
+    type: Date,
+    default: Date.now,
   },
 });
 module.exports = mongoose.model("card", cardSchema);

@@ -1,48 +1,51 @@
-import React, { useState } from "react";
-import { Input, Modal, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Input, Modal, message, notification } from "antd";
 import { faStarOfLife } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const AddUserModal = ({ isModalOpen, showModal, handleCancel }) => {
+const AddUserModal = ({
+  isModalOpen,
+  showModal,
+  handleCancel,
+  idUserNapTien,
+}) => {
   const [newCardId, setNewCardId] = useState("");
   const [studentCode, setStudentCode] = useState("");
-
+  const [listFreeCard, setListFreeCard] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   const hanldeAddAccount = () => {
     axios
-      .get("http://localhost:5035/users?cardId=" + newCardId, {})
+      .put(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardUserId", {
+        id: newCardId,
+        userId: idUserNapTien,
+      })
       .then(function (response) {
-        if (response.data.User.length > 0) {
-          messageApi.open({
-            type: "error",
-            content: "This account has already existed",
-          });
-        } else {
-          axios
-            .post("http://localhost:5035/users", {
-              cardId: newCardId,
-              studentCode: studentCode,
-            })
-            .then(function (response) {
-              console.log(response);
-              messageApi.open({
-                type: "success",
-                content: "Success",
-              });
-              oncancel();
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
-        }
+        notification.open({
+          message: "Thành công!!",
+          duration: 2,
+        });
       })
       .catch(function (error) {
         // handle error
         console.log(error);
       });
   };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      axios
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/freeCard", {})
+        .then(function (response) {
+          setListFreeCard(response.data.allCard);
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
+    }
+  }, [isModalOpen]);
 
   return (
     <>
@@ -59,7 +62,7 @@ const AddUserModal = ({ isModalOpen, showModal, handleCancel }) => {
         justify-center cursor-pointer"
         >
           <div className="w-2/5 flex items-center">
-            Mã thẻ{" "}
+            Mã số tài khoản
             <div className="flex items-center cursor-pointer">
               <FontAwesomeIcon
                 icon={faStarOfLife}
@@ -67,37 +70,37 @@ const AddUserModal = ({ isModalOpen, showModal, handleCancel }) => {
               />
             </div>
           </div>
-          <div className="w-3/5 flex">
-            <Input
-              className="!mr-2"
-              placeholder="card id"
-              onChange={(e) => setNewCardId(e.target.value)}
-              value={newCardId}
-            />
-          </div>
+          <div className="w-3/5 flex">{idUserNapTien}</div>
         </div>
-        <div
-          className="w-[400px] items-center flex h-[50px] rounded-md
-        justify-center cursor-pointer"
-        >
-          <div className="w-2/5 flex items-center">
-            Mã số sinh viên{" "}
-            <div className="flex items-center cursor-pointer">
-              <FontAwesomeIcon
-                icon={faStarOfLife}
-                className="w-[8px] h-[8px] ml-1 text-red-600"
-              />
-            </div>
-          </div>
-          <div className="w-3/5 flex">
-            <Input
-              className="!mr-2"
-              placeholder="student code"
-              onChange={(e) => setStudentCode(e.target.value)}
-              value={studentCode}
-            />
-          </div>
+
+        <div>
+          {listFreeCard.map((item, index) => {
+            if (item._id == newCardId) {
+              return (
+                <div
+                  className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
+              cursor-pointer font-semibold m-2 bg-slate-300"
+                  key={index}
+                >
+                  {item._id} --- {item.HardCardId}
+                </div>
+              );
+            } else {
+              return (
+                <div
+                  key={index}
+                  className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
+            cursor-pointer font-semibold m-2"
+                  onClick={() => setNewCardId(item._id)}
+                >
+                  {item._id} --- {item.HardCardId}
+                </div>
+              );
+            }
+          })}
+          <div></div>
         </div>
+
         <div className="flex justify-center m-4">
           <button
             className="bg-sky-100 rounded hover:bg-blue-800 hover:text-white

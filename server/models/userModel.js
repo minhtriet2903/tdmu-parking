@@ -47,8 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   StudentCode: {
     type: String,
-    required: true,
-    unique: true,
+    default: "",
   },
   TotalAmount: {
     type: Number,

@@ -5,7 +5,7 @@ mongoose.Promise = global.Promise;
 const transactionSchema = new mongoose.Schema({
   Method: {
     type: String,
-    default: "TDMU_Coin",
+    default: "Cash",
   },
   Amount: {
     type: Number,
@@ -18,7 +18,27 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  TransContent: {
+    type: String,
+    default: "Nạp tiền",
+  },
   TransType: {
+    type: String,
+    default: "NapTien",
+  },
+  UserId: {
+    type: String,
+    default: "",
+  },
+  IdCardNapTien: {
+    type: String,
+    default: "",
+  },
+  Status: {
+    type: String,
+    default: "Pending",
+  },
+  PaymentId: {
     type: String,
     default: "",
   },

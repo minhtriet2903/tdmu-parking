@@ -1,88 +1,134 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { Input, Space, Table } from "antd";
+import { Input, Space, Table, DatePicker, Select } from "antd";
 import axios from "axios";
-import BuyTicketModal from "../../src/components/BuyTicketModal";
-import NapTienModal from "../../src/components/NapTienModal";
+const { RangePicker } = DatePicker;
 
 export default function TransactionLog({ data }) {
   const columns = [
     {
-      title: "Method",
-      dataIndex: "Method",
-      key: "Method",
+      title: "Mã giao dịch",
+      dataIndex: "_id",
+      key: "_id",
       width: 200,
     },
     {
-      title: "Trans Date",
-      dataIndex: "CreatedDate",
-      key: "CreatedDate",
+      title: "Nội dung giao dịch",
+      dataIndex: "TransType",
+      key: "TransType",
+      width: 150,
     },
     {
-      title: "Amount",
+      title: "Hình thức giao dịch",
+      dataIndex: "Method",
+      key: "Method",
+      width: 150,
+    },
+    {
+      title: "Số tiền giao dịch",
       dataIndex: "Amount",
       key: "Amount",
-      width: 400,
+      width: 200,
+    },
+    {
+      title: "Trạng thái giao dịch",
+      dataIndex: "Status",
+      key: "Status",
+      width: 200,
+    },
+    {
+      title: "Ngày giao dịch",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
+      width: 200,
     },
     {
       title: "Action",
       key: "action",
-      render: () => (
+      render: (item) => (
         <Space size="middle">
-          <button>Del</button>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              axios
+                .post(
+                  process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
+                    "/momoPayment/checkOrderStatus",
+                  {
+                    requestId: item.paymentId,
+                  }
+                )
+                .then(function (response) {
+                  // console.log(response.data);
+                  axios
+                    .put(
+                      process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/transaction",
+                      {
+                        id: item._id,
+                        status: response.data.data.message,
+                      }
+                    )
+                    .then(function (re) {
+                      console.log(re.data);
+                    })
+                    .catch(function (error) {
+                      // handle error
+                      console.log(error);
+                    });
+                })
+                .catch(function (error) {
+                  // handle error
+                  console.log(error);
+                });
+            }}
+            className="p-2 border border-green-300 rounded hover:bg-green-200 cursor-pointer"
+          >
+            Cập nhật trạng thái
+          </div>
         </Space>
       ),
-      width: 400,
     },
   ];
 
-  const [isBuyTicketModalOpen, setIsBuyTicketModalOpen] = useState(false);
-  const [isVisibleNapTienModal, setIsVisibleNapTienModal] = useState(false);
-
-  const showBuyTicketModal = () => {
-    setIsBuyTicketModalOpen(true);
-  };
-  const handleBuyTicketCancel = () => {
-    setIsBuyTicketModalOpen(false);
-  };
-  const showNapTienModal = () => {
-    setIsVisibleNapTienModal(true);
-  };
-  const handleCancelNapTien = () => {
-    setIsVisibleNapTienModal(false);
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
   };
 
   return (
-    <div className="flex flex-col bg-[#F1F6FD] h-[500px] m-5 rounded-xl pt-5">
-      <BuyTicketModal
-        showModal={showBuyTicketModal}
-        isModalOpen={isBuyTicketModalOpen}
-        handleCancel={handleBuyTicketCancel}
-      ></BuyTicketModal>
-      <NapTienModal
-        showModal={showNapTienModal}
-        isModalOpen={isVisibleNapTienModal}
-        handleCancel={handleCancelNapTien}
-      ></NapTienModal>
-      <div className="flex ml-16">
-        <div
-          className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
-        cursor-pointer font-semibold m-2"
-          onClick={showNapTienModal}
-        >
-          Nạp tiền
+    <div className="flex flex-col bg-[#F1F6FD] h-[580px] m-5 rounded-xl pt-5">
+      <div className="flex m-5 ml-[40px]">
+        <div>
+          <Select
+            style={{
+              width: 120,
+            }}
+            onChange={handleChange}
+            options={[
+              {
+                value: "NapTien",
+                label: "Nạp tiền",
+              },
+              {
+                value: "MuaPhieu",
+                label: "Mua Phiếu",
+              },
+            ]}
+          />
         </div>
-        <div
-          className="p-2 hover:bg-sky-100 rounded border-sky-400 border 
-        cursor-pointer font-semibold m-2"
-          onClick={showBuyTicketModal}
-        >
-          Mua phiếu xe
+        <div className="ml-5">
+          <RangePicker />
         </div>
       </div>
-      <div className="justify-center flex">
-        <Table columns={columns} dataSource={data} size={"large"} />
+      <div className="justify-center flex p-4">
+        <Table
+          columns={columns}
+          dataSource={data}
+          size={"large"}
+          scroll={{
+            y: 330,
+          }}
+        />
       </div>
     </div>
   );

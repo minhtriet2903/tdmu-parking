@@ -26,18 +26,18 @@ const SideBar = ({ setIndexMenu }) => {
       header={
         <div className="flex flex-col w-full cursor-pointer">
           <div className="w-full flex justify-center">
-            <img src="/logo.png" className="w-[100px] h-[50px]"></img>
+            {/* <img src="/logo.png" className="w-[100px] h-[50px]"></img> */}
           </div>
-          <div className="font-bold flex justify-center">
-            TDMU SMART PARKING
+          <div className="font-bold flex justify-center h-[80px] items-center">
+            SMART PARKING
           </div>
         </div>
       }
-      footer={
-        <div className="flex justify-center mt-[50px]">
-          Copy by TDMU IT CLUB
-        </div>
-      }
+      // footer={
+      //   <div className="flex justify-center mt-[50px]">
+      //     Copy by TDMU IT CLUB
+      //   </div>
+      // }
       dataSource={data}
       renderItem={(item) => (
         <div

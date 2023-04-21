@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Input, Modal } from "antd";
+import { Input, Modal, notification } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 const Login = ({
   isModalOpen,
@@ -12,6 +13,7 @@ const Login = ({
   setLoginData,
   showRegisterModal,
 }) => {
+  const router = useRouter();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
@@ -25,11 +27,44 @@ const Login = ({
       email: userData.email,
     };
     axios
-      .get("http://localhost:5035/users/email", { params })
+      .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users/email", {
+        params,
+      })
       .then(function (response) {
         if (response.status == 200) {
           if (response.data.length == 0) {
-            showRegisterModal();
+            axios
+              .post(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users", {
+                email: userData.email,
+                name: userData.name,
+              })
+              .then(function (re) {
+                if (re.status == 201) {
+                  console.log(re.data.user);
+                  notification.open({
+                    message: "Đăng ký mới thành công!!",
+                    duration: 2,
+                  });
+                  setLoginData(re.data.user);
+                  localStorage.setItem(
+                    "loginData",
+                    JSON.stringify(re.data.user)
+                  );
+                  handleCancel();
+                }
+              })
+              .catch(function (error) {
+                // handle error
+                console.log(error);
+              });
+          } else {
+            notification.open({
+              message: "Đăng nhập thành công!!",
+              duration: 2,
+            });
+            setLoginData(response.data[0]);
+            localStorage.setItem("loginData", JSON.stringify(response.data[0]));
+            handleCancel();
           }
         }
       })
@@ -37,9 +72,6 @@ const Login = ({
         // handle error
         console.log(error);
       });
-    setLoginData(userData);
-    localStorage.setItem("loginData", JSON.stringify(userData));
-    handleCancel();
   };
 
   const handleFailure = (result) => {
@@ -63,16 +95,49 @@ const Login = ({
                 className="!rounded !w-[300px]"
                 onChange={(e) => setUserName(e.target.value)}
                 value={userName}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    localStorage.setItem(
+                      "loginData",
+                      JSON.stringify({ Name: "Admin" })
+                    );
+                    if (userName == "admin") {
+                      router.push("/Admin");
+                    }
+                  }
+                }}
               />
               <Input
                 placeholder="Nhập mật khẩu"
                 className="!rounded !w-[300px]"
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    localStorage.setItem(
+                      "loginData",
+                      JSON.stringify({ Name: "Admin" })
+                    );
+                    if (userName == "admin") {
+                      router.push("/Admin");
+                    }
+                  }
+                }}
               />
             </div>
             <div className="flex justify-center">
-              <div className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300">
+              <div
+                className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300"
+                onClick={() => {
+                  localStorage.setItem(
+                    "loginData",
+                    JSON.stringify({ Name: "Admin" })
+                  );
+                  if (userName == "admin") {
+                    router.push("/Admin");
+                  }
+                }}
+              >
                 Đăng nhập
               </div>
             </div>
