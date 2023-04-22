@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Input, Radio, Space, Table, message } from "antd";
+import { Input, Radio, Space, Table, message, notification } from "antd";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCamera } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,8 @@ import AddUserModal from "../../src/components/AddUserModal";
 export default function Home({ data }) {
   const [cardId, setCardId] = useState("");
   const [reset, setReset] = useState(false);
+  const [userInfo, setUserInfo] = useState();
+  const [cardInfo, setCardInfo] = useState();
 
   const onChange = (e) => {
     console.log("radio checked", e.target.value);
@@ -21,13 +23,16 @@ export default function Home({ data }) {
   //read
   useEffect(() => {
     if (reset == false) {
-      set(ref(db, `cardId`), "");
+      set(ref(db, `RFIDInfo`), "");
     }
     onValue(ref(db), (snapshot) => {
       const data = snapshot.val();
       if (data !== null) {
-        // console.log("data", data);
-        setCardId(data.cardId);
+        console.log("data", data.RFIDInfo);
+        if (data.RFIDInfo) {
+          setCardId(data.RFIDInfo.RFID_IN);
+        }
+        // setCardId(data.cardId);
         // Object.values(data).map((todo) => {
         //   setTodos((oldArray) => [...oldArray, todo]);
         // });
@@ -38,12 +43,12 @@ export default function Home({ data }) {
   //reset data in firebase
   useEffect(() => {
     if (reset == false) {
-      set(ref(db, `cardId`), "");
+      set(ref(db, `RFIDInfo`), "");
       onValue(ref(db), (snapshot) => {
         const data = snapshot.val();
         if (data !== null) {
-          // console.log("data", data);
-          setCardId(data.cardId);
+          console.log("reset data", data);
+          // setCardId(data.cardId);
           // Object.values(data).map((todo) => {
           //   setTodos((oldArray) => [...oldArray, todo]);
           // });
@@ -54,49 +59,61 @@ export default function Home({ data }) {
 
   useEffect(() => {
     if (cardId != "" && cardId != null) {
+      let params = {
+        hardCardId: cardId,
+      };
       axios
-        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/card/" + cardId, {})
+        .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardByHardCardId", {
+          params,
+        })
         .then(function (response) {
-          console.log(response.status);
-          if (response.data) {
-            if (response.data.success) {
-              if (response.data.BikeTicket <= 0) {
-                messageApi.open({
-                  type: "error",
-                  content: "This account has not enough ticket to charge",
-                });
-              } else {
-                axios
-                  .put(
-                    process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
-                      "/cardBikeTicket",
-                    {
-                      id: cardId,
-                      bikeTicket: response.data.BikeTicket - 1,
-                    }
-                  )
-                  .then(function (response) {
-                    console.log(response);
-                    messageApi.open({
-                      type: "success",
-                      content: "Success",
-                    });
-                    oncancel();
-                  })
-                  .catch(function (error1) {
-                    console.log(error1);
-                    messageApi.open({
-                      type: "error",
-                      content: "ID not found",
-                    });
+          // console.log(response.status);
+          if (response.status == 200) {
+            setCardInfo(response.data[0]);
+
+            if (response.data.BikeTicket <= 0) {
+              notification.open({
+                message: "Thẻ không còn đủ phiếu xe để thanh toán!!",
+                duration: 2,
+              });
+            } else {
+              axios
+                .put(
+                  process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardBikeTicket",
+                  {
+                    id: cardId,
+                    bikeTicket: response.data.BikeTicket - 1,
+                  }
+                )
+                .then(function (res1) {
+                  console.log(res1);
+                  notification.open({
+                    message: "Thành công!!",
+                    duration: 2,
                   });
-              }
+                  oncancel();
+                })
+                .catch(function (error1) {
+                  console.log(error1);
+                  notification.open({
+                    message: "Thẻ không tồn tại!!",
+                    duration: 2,
+                  });
+                });
             }
-          } else {
-            messageApi.open({
-              type: "error",
-              content: "ID not found",
-            });
+
+            axios
+              .get(
+                process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN +
+                  "/users/" +
+                  response.data[0].userId,
+                {}
+              )
+              .then(function (re) {
+                if (re.status == 200) {
+                  setUserInfo(re.data);
+                }
+              });
           }
         })
         .catch(function (error) {
@@ -116,7 +133,7 @@ export default function Home({ data }) {
         <div className="flex items-center mt-10 ">
           <div className="flex ">
             <div className="text-lg">Mã số thẻ</div>
-            <div className="text-lg font-bold ml-5 w-[200px] border">
+            <div className="text-lg font-bold ml-5 w-[200px] border text-center">
               {cardId}
             </div>
           </div>
@@ -128,20 +145,32 @@ export default function Home({ data }) {
             Thêm thẻ
           </div> */}
         </div>
-        <div className="flex h-[400px] w-3/4 m-10 border">
+        <div className="flex w-5/6 m-10 border">
           <div className="w-1/2 border-r flex flex-col items-center">
             <div className="text-lg font-bold mt-10">Thông tin</div>
-            <div className="flex justify-between mt-10 w-3/4">
+            <div className="flex justify-between mt-10 w-5/6">
               <div className="text-lg">Họ tên</div>
-              <div className="text-lg font-bold">Nguyễn Văn A</div>
+              <div className="text-lg font-bold">{userInfo?.Name}</div>
             </div>
-            <div className="flex justify-between mt-10 w-3/4">
+            <div className="flex justify-between mt-10 w-5/6">
               <div className="text-lg">Mã số sinh viên</div>
-              <div className="text-lg font-bold">1924987653</div>
+              <div className="text-lg font-bold">{userInfo?.Email}</div>
             </div>
-            <div className="flex justify-between mt-10 w-3/4">
-              <div className="text-lg">Số tiền thanh toán</div>
-              <div className="text-lg font-bold">3 000</div>
+            <div className="flex justify-between mt-10 w-5/6">
+              <div className="text-lg">Số lượt gửi xe hiện có</div>
+              <div className="text-lg font-bold">{cardInfo?.BikeTicket}</div>
+            </div>
+            <div className="flex justify-between mt-10 w-5/6">
+              <div className="text-lg">Gói gửi xe hiện có</div>
+              <div className="text-lg font-bold">
+                {cardInfo?.PhieuXeTheoGoi}
+              </div>
+            </div>
+            <div className="flex justify-between my-10 w-5/6">
+              <div className="text-lg">Hạn sử dụng</div>
+              <div className="text-lg font-bold">
+                {cardInfo?.HanSuDungGoiGuiXe}
+              </div>
             </div>
           </div>
           <div className="w-1/2 flex justify-center">

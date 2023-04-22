@@ -254,19 +254,19 @@ const BuyTicketModal = ({
   //read
   useEffect(() => {
     if (reset == false) {
-      set(ref(db, `cardId`), "");
+      set(ref(db, `RFIDInfo`), "");
+      onValue(ref(db), (snapshot) => {
+        const data = snapshot.val();
+        if (data !== null) {
+          console.log("data", data);
+          // setCardId(data.cardId);
+          // Object.values(data).map((todo) => {
+          //   setTodos((oldArray) => [...oldArray, todo]);
+          // });
+        }
+      });
     }
-    onValue(ref(db), (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        // console.log("data", data);
-        setCardId(data.cardId);
-        // Object.values(data).map((todo) => {
-        //   setTodos((oldArray) => [...oldArray, todo]);
-        // });
-      }
-    });
-  }, []);
+  }, [reset]);
 
   return (
     <>

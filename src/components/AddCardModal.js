@@ -13,19 +13,19 @@ const AddCardModal = ({ isModalOpen, showModal, handleCancel }) => {
   //read
   useEffect(() => {
     if (reset == false) {
-      set(ref(db, `cardId`), "");
+      set(ref(db, `RFIDInfo`), "");
+      onValue(ref(db), (snapshot) => {
+        const data = snapshot.val();
+        if (data !== null) {
+          console.log("data", data);
+          if (data.RFIDInfo) setNewCardId(data.RFIDInfo.RFID_IN);
+          // Object.values(data).map((todo) => {
+          //   setTodos((oldArray) => [...oldArray, todo]);
+          // });
+        }
+      });
     }
-    onValue(ref(db), (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        // console.log("data", data);
-        setNewCardId(data.cardId);
-        // Object.values(data).map((todo) => {
-        //   setTodos((oldArray) => [...oldArray, todo]);
-        // });
-      }
-    });
-  }, []);
+  }, [reset]);
 
   const hanldeAddAccount = () => {
     let params = {
