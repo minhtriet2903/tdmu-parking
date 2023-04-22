@@ -31,8 +31,8 @@ exports.create = async (req, res) => {
   var requestId = partnerCode + new Date().getTime();
   var orderId = requestId;
   var orderInfo = "pay with MoMo";
-  var redirectUrl = process.env.LOCAL_DOMAIN;
-  var ipnUrl = process.env.LOCAL_DOMAIN;
+  var redirectUrl = "https://tdmu-parking.onrender.com";
+  var ipnUrl = "https://tdmu-parking.onrender.com";
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
   var amount = inputAmount;
   var requestType = "captureWallet";
