@@ -119,9 +119,9 @@ export default function Home({ data }) {
         .catch(function (error) {
           // handle error
           console.log(error);
-          messageApi.open({
-            type: "error",
-            content: "ID not found",
+          notification.open({
+            message: "Thẻ không tồn tại!!",
+            duration: 2,
           });
         });
     }
