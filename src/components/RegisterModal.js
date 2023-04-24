@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Input, Modal, notification } from "antd";
 import axios from "axios";
-const RegisterModal = ({ isModalOpen, showModal, handleCancel }) => {
+const RegisterModal = ({ isModalOpen, showModal, handleCancel,  setReloadUserData,
+  reloadUserData }) => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,13 +15,15 @@ const RegisterModal = ({ isModalOpen, showModal, handleCancel }) => {
       })
       .then(function (re) {
         if (re.status == 201) {
-          console.log(re.data.user);
+          // console.log(re.data.user);
+          handleCancel()
+          setReloadUserData(!reloadUserData)
           notification.open({
             message: "Đăng ký mới thành công!!",
             duration: 2,
           });
 
-          handleCancel();
+         
         }
       })
       .catch(function (error) {

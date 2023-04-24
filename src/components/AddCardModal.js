@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { db } from "../../src/firebase";
 import { set, ref, onValue, remove, update } from "firebase/database";
 
-const AddCardModal = ({ isModalOpen, showModal, handleCancel }) => {
+const AddCardModal = ({ isModalOpen, showModal, handleCancel, reloadCartData, setReloadCartData }) => {
   const [newCardId, setNewCardId] = useState("");
   const [reset, setReset] = useState(false);
 
@@ -48,11 +48,14 @@ const AddCardModal = ({ isModalOpen, showModal, handleCancel }) => {
             })
             .then(function (response) {
               console.log(response);
+              handleCancel();
+              setReloadCartData(!reloadCartData)
+              setNewCardId('')
               notification.open({
                 message: "Thành công!!",
                 duration: 2,
               });
-              oncancel();
+             
             })
             .catch(function (error) {
               console.log(error);

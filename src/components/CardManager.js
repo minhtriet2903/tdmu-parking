@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { Input, Space, Table, DatePicker, Select, message } from "antd";
@@ -6,7 +6,7 @@ import axios from "axios";
 import BuyTicketModal from "./BuyTicketModal";
 import AddCardModal from "./AddCardModal";
 
-export default function CardManager({ data }) {
+export default function CardManager({ data, setReloadCartData, reloadCartData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isBuyTicketModalOpen, setIsBuyTicketModalOpen] = useState(false);
@@ -18,6 +18,7 @@ export default function CardManager({ data }) {
   const handleBuyTicketCancel = () => {
     setIsBuyTicketModalOpen(false);
   };
+  
 
   const columns = [
     {
@@ -75,7 +76,7 @@ export default function CardManager({ data }) {
   return (
     <div
       className="flex bg-[#e6f4ff] h-[550px] m-5 rounded-xl items-start
-         pt-3 flex-col"
+         pt-3 flex-col px-6"
     >
       <div
         className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300 ml-3"
@@ -85,17 +86,24 @@ export default function CardManager({ data }) {
       >
         Thêm thẻ
       </div>
+
       <AddCardModal
         showModal={showModal}
         isModalOpen={isModalOpen}
         handleCancel={handleCancel}
+        setReloadCartData = {setReloadCartData}
+        reloadCartData = {reloadCartData}
       ></AddCardModal>
       <BuyTicketModal
         showModal={showBuyTicketModal}
         isModalOpen={isBuyTicketModalOpen}
         handleCancel={handleBuyTicketCancel}
         inputCardId={cardId}
+        setReloadCartData = {setReloadCartData}
+        reloadCartData = {reloadCartData}
       ></BuyTicketModal>
+
+     
       <Table
         columns={columns}
         dataSource={data}

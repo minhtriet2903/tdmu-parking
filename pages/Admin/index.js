@@ -23,11 +23,13 @@ export default function Admin() {
   const [indexMenu, setIndexMenu] = useState("transLog");
   const [transactionData, setTransactionData] = useState([]);
   const [cardData, setCardData] = useState([]);
+  const [reloadCartData, setReloadCartData] = useState(false)
   const [userData, setUserData] = useState([]);
   const [userDetail, setUserDetail] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loginData, setLoginData] = useState();
-
+  const [reloadUserData, setReloadUserData] = useState(false)
+  const [reloadTransLog, setReloadTransLog] = useState(false)
   const router = useRouter();
 
   const showModal = () => {
@@ -87,9 +89,10 @@ export default function Admin() {
           console.log(error);
         });
     }
-  }, []);
+  }, [reloadUserData, reloadTransLog]);
 
   useEffect(() => {
+    console.log("indexMenu", indexMenu);
     if (indexMenu == "users") {
       axios
         .get(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/users", {})
@@ -124,7 +127,7 @@ export default function Admin() {
           console.log(error);
         });
     }
-  }, [indexMenu]);
+  }, [indexMenu, reloadCartData, reloadUserData, reloadTransLog]);
 
   return (
     <div className="flex h-full">
@@ -171,15 +174,17 @@ export default function Admin() {
           </div>
         </div>
         {indexMenu == "transLog" && (
-          <TransactionLog data={transactionData}></TransactionLog>
+          <TransactionLog data={transactionData} setReloadTransLog = {setReloadTransLog}  reloadTransLog ={reloadTransLog} ></TransactionLog>
         )}
         {indexMenu == "home" && <AdminHome></AdminHome>}
-        {indexMenu == "cards" && <CardManager data={cardData}></CardManager>}
+        {indexMenu == "cards" && <CardManager data={cardData} setReloadCartData ={setReloadCartData} reloadCartData = {reloadCartData}/>}
         {indexMenu == "settings" && <Settings></Settings>}
         {indexMenu == "users" && (
           <UserManagerTable
             userData={userData}
             setUserDetail={setUserDetail}
+            setReloadUserData = {setReloadUserData}
+            reloadUserData = {reloadUserData}
           ></UserManagerTable>
         )}
       </div>
