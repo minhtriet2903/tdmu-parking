@@ -9,6 +9,8 @@ const AddUserModal = ({
   showModal,
   handleCancel,
   idUserNapTien,
+  setReloadUserData,
+  reloadUserData
 }) => {
   const [newCardId, setNewCardId] = useState("");
   const [studentCode, setStudentCode] = useState("");
@@ -22,6 +24,8 @@ const AddUserModal = ({
         userId: idUserNapTien,
       })
       .then(function (response) {
+        handleCancel()
+        setReloadUserData(!reloadUserData)
         notification.open({
           message: "Thành công!!",
           duration: 2,

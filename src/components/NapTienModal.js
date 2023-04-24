@@ -12,6 +12,8 @@ const NapTienModal = ({
   showModal,
   handleCancel,
   idUserNapTien,
+  setReloadUserData,
+  reloadUserData
 }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectedPayType, setSelectedPayType] = useState("");
@@ -100,6 +102,8 @@ const NapTienModal = ({
             })
             .then(function (re) {
               // console.log(re.data);
+              handleCancel()
+              setReloadUserData(!reloadUserData)
               notification.open({
                 message: "Thành công!!",
                 duration: 2,
@@ -124,6 +128,8 @@ const NapTienModal = ({
         .then(function (re) {
           console.log(re);
           if (re.status == 201) {
+            handleCancel()
+            setReloadUserData(!reloadUserData)
             notification.open({
               message: "Thành công!!",
               duration: 2,
@@ -163,7 +169,9 @@ const NapTienModal = ({
                   )
                   .then(function (re) {
                     // console.log(re.data);
-                    notification.open({
+                    handleCancel()
+                    setReloadUserData(!reloadUserData)
+                    notification.open({                   
                       message: "Thành công!!",
                       duration: 2,
                     });
@@ -189,6 +197,8 @@ const NapTienModal = ({
               .then(function (re) {
                 console.log(re);
                 if (re.status == 201) {
+                  handleCancel()
+                  setReloadUserData(!reloadUserData)
                   notification.open({
                     message: "Thành công!!",
                     duration: 2,

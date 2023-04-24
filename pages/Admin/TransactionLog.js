@@ -5,7 +5,7 @@ import { Input, Space, Table, DatePicker, Select } from "antd";
 import axios from "axios";
 const { RangePicker } = DatePicker;
 
-export default function TransactionLog({ data }) {
+export default function TransactionLog({ data, reloadTransLog, setReloadTransLog }) {
   const columns = [
     {
       title: "Mã giao dịch",
@@ -70,6 +70,7 @@ export default function TransactionLog({ data }) {
                       }
                     )
                     .then(function (re) {
+                      setReloadTransLog(!reloadTransLog)
                       console.log(re.data);
                     })
                     .catch(function (error) {

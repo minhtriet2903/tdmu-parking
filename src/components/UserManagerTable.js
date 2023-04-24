@@ -7,12 +7,13 @@ import AddUserModal from "./AddUserModal";
 import NapTienModal from "./NapTienModal";
 import RegisterModal from "./RegisterModal";
 
-export default function UserManagerTable({ userData, setUserDetail }) {
+export default function UserManagerTable({ userData, setUserDetail, reloadUserData, setReloadUserData }) {
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVisibleNapTienModal, setIsVisibleNapTienModal] = useState(false);
   const [isVisibleRegisterModal, setIsVisibleRegisterModal] = useState(false);
   const [idUserNapTien, setIdUserNapTien] = useState();
+
 
   const columns = [
     {
@@ -96,17 +97,23 @@ export default function UserManagerTable({ userData, setUserDetail }) {
         isModalOpen={isModalOpen}
         handleCancel={handleCancel}
         idUserNapTien={idUserNapTien}
+        reloadUserData = {reloadUserData}
+        setReloadUserData = {setReloadUserData}
       ></AddUserModal>
       <RegisterModal
         showModal={showRegisterModal}
         isModalOpen={isVisibleRegisterModal}
         handleCancel={handleCancelRegister}
+        reloadUserData = {reloadUserData}
+        setReloadUserData = {setReloadUserData}
       ></RegisterModal>
       <NapTienModal
         showModal={showNapTienModal}
         isModalOpen={isVisibleNapTienModal}
         handleCancel={handleCancelNapTien}
         idUserNapTien={idUserNapTien}
+        reloadUserData = {reloadUserData}
+        setReloadUserData = {setReloadUserData}
       ></NapTienModal>
       <div
         className="font-bold p-2 border-sky-300 border flex w-fit my-2 rounded cursor-pointer hover:bg-sky-300 ml-3"

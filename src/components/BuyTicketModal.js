@@ -11,6 +11,8 @@ const BuyTicketModal = ({
   showModal,
   handleCancel,
   inputCardId,
+  reloadCartData,
+   setReloadCartData
 }) => {
   const [cardId, setCardId] = useState(inputCardId);
   const [userId, setUserId] = useState("");
@@ -166,31 +168,38 @@ const BuyTicketModal = ({
 
   const hanldeBuyTicket = () => {
     let isAvailableCharge =
-      userInfor.CurrentAmount - parseInt(selectCharge.value);
+      userInfor.CurrentAmount - parseInt(selectCharge?.value);
     if (isAvailableCharge && isAvailableCharge < 0) {
       messageApi.open({
         type: "error",
         content: "This account has not enough money to charge",
       });
     } else {
-      if (selectCharge.label.includes("Gói")) {
+      if (selectCharge?.label.includes("Gói")) {
+        let isSuccess = false
         var date = new Date();
         axios
           .put(process.env.NEXT_PUBLIC_LOCAL_API_DOMAIN + "/cardBikeTicket", {
             id: inputCardId._id,
-            phieuXeTheoGoi: selectCharge.label + "---" + selectCharge.value,
+            phieuXeTheoGoi: selectCharge?.label + "---" + selectCharge?.value,
             hanSuDung: date.getDate() + 7,
           })
           .then(function (response) {
             console.log(response);
+            // isSuccess
+            console.log("isSuccess1");
+            handleCancel();
+            setReloadCartData(!reloadCartData)
+            console.log("reload1" );
             messageApi.open({
               type: "success",
               content: "Success",
             });
-            oncancel();
+          
           })
           .catch(function (error1) {
             console.log(error1);
+           
             messageApi.open({
               type: "error",
               content: "ID not found",
@@ -219,11 +228,15 @@ const BuyTicketModal = ({
                 )
                 .then(function (response) {
                   console.log(response);
+                  console.log("isSuccess2");
+                  handleCancel();
+                  setReloadCartData(!reloadCartData)
+                  console.log("reload" );
                   messageApi.open({
                     type: "success",
                     content: "Success",
                   });
-                  oncancel();
+                  
                 })
                 .catch(function (error1) {
                   console.log(error1);
